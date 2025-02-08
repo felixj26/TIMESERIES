@@ -1,0 +1,95 @@
+---
+title: "Employee Survey Analysis"
+author: "Felix Johnson"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# **Introduction**
+This report analyzes employee survey data using R. We will:
+- Import and clean the dataset
+- Explore its structure and summary statistics
+- Convert necessary columns into appropriate data types
+- Create visualizations to understand key relationships
+- Save and prepare the cleaned dataset for further analysis
+
+---
+
+## **1. Import the Data (Excel to CSV)**
+```{r}
+# Load the dataset (ensure the file is saved as CSV)
+library(readr)
+Typical_Employee_Survey_Data_copy <- read.csv("Downloads/Typical_Employee_Survey_Data copy.csv", header=FALSE)
+# View first few rows
+head(Typical_Employee_Survey_Data_copy)
+
+# Check structure
+str(Typical_Employee_Survey_Data_copy)
+
+# View column names
+colnames(Typical_Employee_Survey_Data_copy)
+```
+## **2. Assign meaningful column names**
+```{r}
+colnames(Typical_Employee_Survey_Data_copy) <- c("Age", "ID", "Department", "Satisfaction", "Salary", "YearsExperience")
+
+# Check again
+head(Typical_Employee_Survey_Data_copy)
+```
+## **3.Convert Department to a factor**
+```{r}
+Typical_Employee_Survey_Data_copy$Department <- as.factor(Typical_Employee_Survey_Data_copy$Department)
+
+
+# Check structure again
+str(Typical_Employee_Survey_Data_copy)
+# Summary of numeric columns
+summary(Typical_Employee_Survey_Data_copy[c("Age", "Salary", "Satisfaction", "YearsExperience")])
+```
+## **4. Print five-number summary: Maximum, Minimum, Lower and Upper Quartiles, and Median**
+```{r}
+fivenum(Typical_Employee_Survey_Data_copy$Age)
+fivenum(Typical_Employee_Survey_Data_copy$Salary)
+fivenum(Typical_Employee_Survey_Data_copy$Satisfaction)
+fivenum(Typical_Employee_Survey_Data_copy$YearsExperience)
+```
+## **5. Plots - Plot Visuals for Columns (Scatter plots for relationships and brief description for each visual)**
+```{r}
+
+boxplot(Typical_Employee_Survey_Data_copy$Age, main="Age Distribution", col="lightblue")
+#The age distribution shows that most of the employees are typically between 35 and 45 years old, with a median of slightly under 40, showing this company's employees are mainly middle aged. There do seem to be some outliers such as the employees over 60 and around 21 years old.
+
+boxplot(Typical_Employee_Survey_Data_copy$Salary, main="Salary Distribution", col="lightgreen")
+#The salary distribution show employees typically having a lower weekly salary (We will consider this as weekly pay, multiplied by 100). The distribution shows that employees typically receive $200 to $1000 per week, although there are strong outliers, which could be due to higher positions that earn a higher salary. 
+
+boxplot(Typical_Employee_Survey_Data_copy$Satisfaction, main="Satisfaction Distribution", col="lightcoral")
+#The employees' satisfaction score seems to be overall high (5 meaning very satisfied, 1 meaning very unsatisfied). There does not seem to be many employees giving a score of 1, which implies this company is more desirable than not to work at. 
+ 
+boxplot(Typical_Employee_Survey_Data_copy$YearsExperience, main="Years of Experience Distribution", col="lightgray")
+#The employees' years of experience show that most of the employees have worked for the company for about 4+ years. 
+
+# Histograms
+
+hist(Typical_Employee_Survey_Data_copy$Age, main="Age Distribution", col="lightblue", xlab="Age", breaks=10)
+#The histogram for age gives a much simpler visual representation of the distribution. We can clearly see that employees are typically around 30 to 40 years old, indicating the employees are mainly middle aged. 
+hist(Typical_Employee_Survey_Data_copy$Salary, main="Salary Distribution", col="lightgreen", xlab="Salary", breaks=10)
+#The histogram for Salary once again shows that most employees typically receive a lower weekly salary of about $500 a week. The chart shows that as the salary increases, less employees are shown to receive it, which is a common practice in most companies. 
+hist(Typical_Employee_Survey_Data_copy$Satisfaction, main="Satisfaction Score Distribution", col="lightcoral", xlab="Satisfaction", breaks=10)
+#The Satisfaction Score histogram shows that most employees have given a score of 5 (Very satisfied). This means that the company is one that is desirable and enjoyable to work at, though an employee's specific reason is not shown. 
+
+hist(Typical_Employee_Survey_Data_copy$YearsExperience, main="Years of Experience Distribution", col="lightgray", xlab="Years of Experience", breaks=10)
+#The Years of experience histogram shows that although most employees have 5 years of experience, there are almost as many employees with only 1-2 years of experience. This implies that this company often hires new employees, although they are less in number compared to more experienced employees. 
+
+barplot(table(Typical_Employee_Survey_Data_copy$Department), main="Employee Count by Department", col="lightblue", ylab="Count", xlab="Department")
+#This barplot shows that most employees at this company work at Department 1 or 2. 
+
+# Relationship between Salary and Years of Experience
+plot(Typical_Employee_Survey_Data_copy$YearsExperience, Typical_Employee_Survey_Data_copy$Salary, main="Salary vs Years of Experience", xlab="Years of Experience", ylab="Salary", col="blue", pch=19)
+# The plot shows that there is not much of a correlation between years of experience and salary, indicating that the company may not pay employees based on years of experience, but instead considers other traits to value their salary. 
+
+
+# Relationship between Salary and Satisfaction
+plot(Typical_Employee_Survey_Data_copy$Salary, Typical_Employee_Survey_Data_copy$Satisfaction, main="Satisfaction vs Salary", xlab="Salary", ylab="Satisfaction Score", col="red", pch=19)
+# Although the plot does show that those with a low salary tended to have a satisfaction score of 1, those who rated a 5 show they received almost the same salary, yet still scored their satisfaction a 5. This can imply there are other aspects to working for this company employees may enjoy, rather than salary. (For example company culture, benefits, etc).
+
+write.csv(Typical_Employee_Survey_Data_copy, "cleaned_employee_survey_data.csv", row.names = FALSE)
