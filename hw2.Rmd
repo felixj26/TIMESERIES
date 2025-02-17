@@ -1,0 +1,57 @@
+---
+title: "hw2"
+output: html_document
+date: "2025-02-16"
+---
+# Data Dictionary for Google Stock Monthly
+
+# 1. Dataset Overview
+The Google Stock Price dataset contains historical price information for Google's stock, covering the period from March 2013 to the present. The dataset is made up of seven columns, each providing unique information about Google's stock performance.
+
+
+
+```{r, echo=FALSE}
+# Load necessary library
+library(knitr)
+
+# Read the CSV file
+google_stock <- read.csv("Downloads/google-stock-dataset-Monthly.csv")
+
+# Create data dictionary as a data frame
+# Create data dictionary as a data frame
+data.dict <- data.frame(
+  "Variable Name" = c("Date", "Price", "High", "Low", "Close", "Volume", "Adj Close"),
+  "Data Type" = c("Date", "Float", "Float", "Float", "Float", "Integer", "Float"),
+  "Description" = c(
+    "The month and year of the stock price observation.",
+    "The opening stock price for the given month.",
+    "The highest stock price recorded during the month.",
+    "The lowest stock price recorded during the month.",
+    "The closing stock price for the given month.",
+    "The total number of shares traded during the month.",
+    "The closing price adjusted for stock splits and dividends."
+  )
+)
+
+# Display as Markdown Table
+kable(data.dict, format="markdown")
+
+```
+# 2. Data Collection Methodology
+
+Source: The data is sourced from Kaggle, which could have been collected from  Google Finance or a stock market data provider such as Yahoo Finance.  
+
+Frequency: The data is collected on a monthly basis.
+
+Collection Method: This dataset is obtained through automated scraping tools or by exporting data via an API provided by financial data sources.
+
+Collected By: Financial analysts, investors, and researchers to track historical stock performance.
+
+# 3. Why This Dataset is Interesting
+
+The dataset is ideal for conducting advanced data analysis, including regression analysis, time series analysis, and predictive modeling. It can also be used to create informative visualizations, such as line graphs and candlestick charts, to better understand trends and patterns in Google's stock performance.
+
+
+
+
+
