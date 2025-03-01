@@ -1,0 +1,126 @@
+---
+title: "hw4"
+output: html_document
+date: "2025-03-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+library(ggplot2)
+library(forecast)
+library(tseries)
+library(TTR)
+library(zoo)
+library(fpp2)
+library(lubridate)
+
+# Load new dataset
+google_stock <- read.csv("Downloads/google-stock-dataset-Monthly.csv", header = TRUE, check.names = TRUE)
+
+# Ensure the Date column is properly formatted
+google_stock$Date <- as.Date(google_stock$Date, tryFormats = c("%Y-%m-%d", "%m/%d/%Y"))
+
+# Remove any NA values
+google_stock <- na.omit(google_stock)
+
+# Filter data for the most recent 5 years
+date_cutoff <- as.Date(max(google_stock$Date)) - years(5)
+google_stock <- subset(google_stock, Date >= date_cutoff)
+
+# Use only Date and relevant time series column
+google_stock <- google_stock[, c("Date", "Close")]
+
+# Define time series
+data_ts <- ts(google_stock$Close, start = c(as.numeric(format(min(google_stock$Date), "%Y")),
+                                           as.numeric(format(min(google_stock$Date), "%m"))), 
+              frequency = 12)
+```
+
+### **Exploratory Analysis**
+```{r plot_time_series, echo=FALSE}
+# Plot time series
+autoplot(data_ts) +
+  ggtitle("Google Stock Price Time Series (Last 5 Years)") +
+  ylab("Closing Price") +
+  xlab("Year") +
+  theme_minimal()
+
+# Decomposition
+decomposed <- decompose(data_ts, type="multiplicative")
+autoplot(decomposed) + ggtitle("Decomposed Google Stock Time Series (Last 5 Years)")
+
+# Autocorrelation
+Acf(data_ts, main = "Autocorrelation of Google Stock Data (Last 5 Years)")
+
+# ADF Test for stationarity
+data_diff <- diff(log(data_ts))
+adf_result <- adf.test(data_diff)
+print(paste("ADF Test p-value:", adf_result$p.value))
+```
+
+### **Model Fitting and Forecasting**
+```{r}
+# Naive method
+naive_forecast <- naive(data_ts, h=12)
+plot(naive_forecast, main="Naive Forecast (Last 5 Years)")
+
+# Explanation: The naive method assumes the most recent observed value is the best forecast for future periods. It works well in stable, non-trending datasets but fails in the presence of trends or seasonality.
+
+# Mean method
+mean_forecast <- meanf(data_ts, h=12)
+plot(mean_forecast, main="Mean Forecast (Last 5 Years)")
+
+# Explanation: The mean method forecasts future values using the average of all past observations. It is a simple method but does not capture trends or seasonality effectively.
+
+# Moving Averages
+MA5_forecast <- ma(data_ts, order=5)
+MA9_forecast <- ma(data_ts, order=9)
+
+plot(data_ts)
+lines(MA5_forecast, col="red")
+lines(MA9_forecast, col="blue")
+
+# Explanation: Moving averages smooth out fluctuations in the data by averaging a fixed number of past observations. It helps in identifying trends but does not predict future values effectively.
+
+# Exponential Smoothing
+ets_model <- ets(data_ts)
+summary(ets_model)
+ets_forecast <- forecast(ets_model, h=12)
+plot(ets_forecast)
+
+# Explanation: Exponential Smoothing assigns exponentially decreasing weights to past observations, giving more importance to recent values. It is useful for short-term forecasting but can struggle with sudden changes.
+
+# Holt-Winters
+HW_forecast <- HoltWinters(data_ts)
+plot(HW_forecast)
+
+# Explanation: The Holt-Winters method extends exponential smoothing by incorporating trend and seasonality components. It is one of the most effective models for time series with seasonal patterns.
+```
+
+### **Model Accuracy Comparison**
+```{r}
+# Compute accuracy measures
+naive_acc <- accuracy(naive_forecast)
+mean_acc <- accuracy(mean_forecast)
+ets_acc <- accuracy(ets_forecast)
+
+# Print accuracy tables
+print(naive_acc)
+print(mean_acc)
+print(ets_acc)
+
+# Compare RMSE
+comparison <- data.frame(
+  Model = c("Naive", "Mean", "ETS"),
+  RMSE = c(naive_acc[1, "RMSE"], mean_acc[1, "RMSE"], ets_acc[1, "RMSE"])
+)
+
+print(comparison)
+
+# Best model selection
+best_model <- comparison[which.min(comparison$RMSE), ]
+print(paste("The best model based on RMSE is:", best_model$Model))
+
+# Explanation: The best model is determined based on RMSE (Root Mean Square Error), which measures the average magnitude of forecasting errors. The lower the RMSE, the better the model's predictive performance. The chosen model provides the most accurate forecast based on past data patterns.
+```
+
