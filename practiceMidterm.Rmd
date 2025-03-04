@@ -1,0 +1,104 @@
+---
+title: "practiceMidterm"
+output: html_document
+date: "2025-03-03"
+---
+
+```{r}
+# Load necessary libraries
+library(fpp)
+library(fpp2)
+
+# Import the data
+data(arrivals)
+
+# Isolate the US Arrivals series (column 4)
+ts <- arrivals[,4]
+
+# Plot the time series
+plot(ts, main="Time Series Plot of US Arrivals", ylab="Number of Arrivals", xlab="Time")
+# Summary statistics of the time series
+summary(ts)
+
+#Please summarize your observations of the time series plot
+#Observations
+#-The plot shows an increasing trend over time.
+#-There are seasonal fluctuations.
+#-Some outliers or spikes may be present.
+
+#Central Tendency
+#What are the min, max, mean, median, 1st, and 3rd Quartile values of the times series?
+summary(ts)
+#Show the box plot.
+boxplot(ts, main="Boxplot of US Arrivals", ylab="Arrivals")
+#Can you summarize your observation about the time series from the summary stats and box plot?
+#-Observations from Summary & Boxplot
+#-Min, Max, Mean, Median, 1st and 3rd Quartile values are displayed.
+#-The boxplot helps visualize outliers and spread.
+#-A right-skewed distribution might be present.
+
+#Decomposition
+ts_decomp <- decompose(ts)
+
+#Plot the decomposition of the time series.
+plot(ts_decomp)
+#Is the time series seasonal?
+#-Yes, it is seasonal
+#Is the decomposition additive or multiplicative?
+#-The decomposition method is additive
+#If seasonal, what are the values of the seasonal monthly indices?
+#-Seasonal indices can be extracted from ts_decomp$seasonal.
+#For which month is the time series value high, and for which month is it low?
+#-
+#Can you think of the reason behind the high and low values in those months?
+#-
+# Overlay the seasonally adjusted time series
+seasonally_adjusted <- seasadj(ts_decomp)
+lines(seasonally_adjusted, col="red")
+ts_decomp$seasonal
+#Does seasonality have big fluctuations in the value of time series?
+#-
+
+#Naïve Method
+#Output
+# Apply the naïve forecasting method
+naive_forecast <- naive(ts)
+
+# Plot the residuals
+plot(naive_forecast$residuals, main="Residuals from Naïve Forecast", ylab="Residuals")
+#-Indicates?
+
+# Histogram of residuals
+hist(naive_forecast$residuals, main="Histogram of Residuals", xlab="Residuals", col="lightblue", breaks=20)
+#-Indicates
+
+# Fitted values vs. residuals
+plot(fitted(naive_forecast), naive_forecast$residuals, main="Fitted Values vs Residuals", xlab="Fitted Values", ylab="Residuals")
+#-Indicates
+
+# Actual values vs. residuals
+plot(ts, naive_forecast$residuals, main="Actual Values vs Residuals", xlab="Actual Values", ylab="Residuals")
+#-Indicates
+
+# ACF plot of residuals
+acf(na.omit(naive_forecast$residuals), main="Autocorrelation of Residuals")
+#-Indicates
+
+# Print five-number summary for the series
+fivenum(ts)
+# Compute five accuracy measures for the Naïve method
+accuracy(naive_forecast)
+
+# Generate a forecast for the next year
+future_forecast <- forecast(naive(ts, h=12))
+
+# Plot the forecast
+plot(future_forecast, main="Naïve Forecast for Next Year", ylab="Number of Arrivals", xlab="Time")
+
+# Show forecasted values
+future_forecast
+
+#How good is accuracy?
+#What does it predict?
+#Other observation
+```
